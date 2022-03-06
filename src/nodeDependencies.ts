@@ -45,13 +45,6 @@ const getFileAndFoldersUnderAPath = (rootPath: string) => {
 		const fileNames = fs.readdirSync(rootPath);
 		fileNames.forEach(fileName => {
 			filesAndFolders.push(fileName);
-			// const filePath = path.join(rootPath, fileName);
-			// if (fs.statSync(filePath).isFile()) {
-			// 	filesAndFolders.push(filePath);
-			// } else if (fs.statSync(filePath).isDirectory()) {
-			// 	filesAndFolders.push(filePath);
-			// 	filesAndFolders.push(...getFileAndFoldersUnderAPath(filePath));
-			// }
 		});
 	}
 	return filesAndFolders;
@@ -88,12 +81,12 @@ const createAFile = (rootPath: string, fileName: string, content: string) => {
 	}
 };
 
-const checkIfStringIsYearFormat = (str: string) => {
-	const year = parseInt(str, 10);
-	if (year >= 1000 && year <= 9999) {
-		return true;
-	}
-	return false;
+const checkIfStringIsNumber = (str: string) => {
+	return /^-?[0-9]+(?:\.[0-9]+)?$/.test(str + '');
+};
+
+const isMarkDownFile = (fileName: string) => {
+	return /\.md$/.test(fileName);
 };
 
 const checkIfPathIsFile = (path: string) => {
@@ -113,22 +106,6 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 
 	refresh(): void {
 		this._onDidChangeTreeData.fire();
-	}
-
-	getYearFolders(): string[] {
-		const folders = [];
-		if (this.workspaceRoot) {
-			const folderNames = fs.readdirSync(this.workspaceRoot);
-			folderNames.forEach(folderName => {
-				const folderPath = path.join(this.workspaceRoot, folderName);
-				if (fs.statSync(folderPath).isDirectory()) {
-					if (checkIfStringIsYearFormat(folderName)) {
-						folders.push(folderPath);
-					}
-				}
-			});
-		}
-		return folders;
 	}
 
 	createANewFileForTodaysDiary(): void {
@@ -209,7 +186,9 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 	 */
 	private getTreeItems(parentFolderPath: string): Dependency[] {
 		if (this.pathExists(parentFolderPath)) {
-			const fileAndFolders = getFileAndFoldersUnderAPath(parentFolderPath);
+			const fileAndFolders = getFileAndFoldersUnderAPath(parentFolderPath).filter(fileOrFolder => {
+				return checkIfStringIsNumber(fileOrFolder) === true || isMarkDownFile(fileOrFolder) === true;
+			});
 
 			const treeItems: Dependency[] = fileAndFolders.map(label => {
 				const absolutePath = path.join(parentFolderPath, label);

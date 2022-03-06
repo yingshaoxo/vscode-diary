@@ -2,7 +2,7 @@
 	"name": "vscode-diary",
 	"displayName": "VSCode Diary",
 	"description": "Help you to write your diary with VSCode",
-	"version": "0.0.1",
+	"version": "0.0.2",
 	"publisher": "yingshaoxo",
 	"author": {
 		"name": "yingshaoxo",
