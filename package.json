@@ -1,0 +1,107 @@
+{
+	"name": "vscode-diary",
+	"displayName": "VSCode Diary",
+	"description": "Help you to write your diary with VSCode",
+	"version": "0.0.1",
+	"publisher": "yingshaoxo",
+	"author": {
+		"name": "yingshaoxo",
+		"email": "yingshaoxo@gmail.com"
+	},
+	"private": true,
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/yingshaoxo/vscode-diary"
+	},
+	"engines": {
+		"vscode": "^1.57.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onView:vscode-diary"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"viewsContainers": {
+			"activitybar": [
+				{
+					"id": "vscode-diary",
+					"title": "VSCode Diary",
+					"icon": "media/dep.svg"
+				}
+			]
+		},
+		"views": {
+			"vscode-diary": [
+				{
+					"id": "vscode-diary",
+					"name": "",
+					"icon": "media/dep.svg",
+					"contextualTitle": "VSCode Diary"
+				}
+			],
+			"explorer": []
+		},
+		"commands": [
+			{
+				"command": "vscode-diary.refreshEntry",
+				"title": "Refresh",
+				"icon": {
+					"light": "resources/light/refresh.svg",
+					"dark": "resources/dark/refresh.svg"
+				}
+			},
+			{
+				"command": "vscode-diary.addEntry",
+				"title": "Add",
+				"icon": {
+					"light": "resources/light/add.svg",
+					"dark": "resources/dark/add.svg"
+				}
+			}
+		],
+		"menus": {
+			"commandPalette": [],
+			"view/title": [
+				{
+					"command": "vscode-diary.refreshEntry",
+					"when": "view == vscode-diary",
+					"group": "navigation"
+				},
+				{
+					"command": "vscode-diary.addEntry",
+					"when": "view == vscode-diary",
+					"group": "navigation"
+				}
+			],
+			"view/item/context": []
+		},
+		"configuration": [
+			{}
+		]
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"lint": "eslint . --ext .ts,.tsx"
+	},
+	"devDependencies": {
+		"@types/mkdirp": "^0.5.2",
+		"@types/node": "^12.12.0",
+		"@types/rimraf": "^2.0.2",
+		"@types/vscode": "^1.52.0",
+		"@typescript-eslint/eslint-plugin": "^4.16.0",
+		"@typescript-eslint/parser": "^4.16.0",
+		"eslint": "^7.21.0",
+		"typescript": "^4.5.5"
+	},
+	"dependencies": {
+		"minimist": "^0.2.1",
+		"mkdirp": "^0.5.1",
+		"rimraf": "^2.6.2"
+	}
+}
