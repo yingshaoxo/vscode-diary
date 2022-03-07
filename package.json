@@ -3,7 +3,7 @@
 	"displayName": "VSCode Diary",
 	"description": "Help you to write your diary with VSCode",
 	"icon": "resources/icon.png",
-	"version": "0.0.2",
+	"version": "0.0.3",
 	"publisher": "yingshaoxo",
 	"author": {
 		"name": "yingshaoxo",
@@ -62,6 +62,26 @@
 					"light": "resources/light/add.svg",
 					"dark": "resources/dark/add.svg"
 				}
+			},
+			{
+				"command": "vscode-diary.takeNotesEntry",
+				"title": "Take notes",
+				"icon": {
+					"light": "resources/light/note.svg",
+					"dark": "resources/dark/note.svg"
+				}
+			},
+			{
+				"command": "vscode-diary.deleteEntry",
+				"title": "Delete"
+			},
+			{
+				"command": "vscode-diary.addNewFileEntry",
+				"title": "Add new file"
+			},
+			{
+				"command": "vscode-diary.renameEntry",
+				"title": "Rename"
 			}
 		],
 		"menus": {
@@ -76,9 +96,30 @@
 					"command": "vscode-diary.addEntry",
 					"when": "view == vscode-diary",
 					"group": "navigation"
+				},
+				{
+					"command": "vscode-diary.takeNotesEntry",
+					"when": "view == vscode-diary",
+					"group": "navigation"
 				}
 			],
-			"view/item/context": []
+			"view/item/context": [
+				{
+					"command": "vscode-diary.deleteEntry",
+					"when": "view == vscode-diary && viewItem == dependency",
+					"group": "mygr@3"
+				},
+				{
+					"command": "vscode-diary.addNewFileEntry",
+					"when": "view == vscode-diary && viewItem == dependency",
+					"group": "mygr@1"
+				},
+				{
+					"command": "vscode-diary.renameEntry",
+					"when": "view == vscode-diary && viewItem == dependency",
+					"group": "mygr@2"
+				}
+			]
 		},
 		"configuration": [
 			{}
