@@ -103,6 +103,22 @@ const checkIfPathIsFile = (path: string) => {
 	return false;
 };
 
+const deleteFolderRecursive = function (path) {
+	let files = [];
+	if (fs.existsSync(path)) {
+		files = fs.readdirSync(path);
+		files.forEach(function (file, index) {
+			const curPath = path + getPathSeperator() + file;
+			if (fs.lstatSync(curPath).isDirectory()) { // recurse
+				deleteFolderRecursive(curPath);
+			} else { // delete file
+				fs.unlinkSync(curPath);
+			}
+		});
+		fs.rmdirSync(path);
+	}
+};
+
 export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 
 	private _onDidChangeTreeData: vscode.EventEmitter<Dependency | undefined | void> = new vscode.EventEmitter<Dependency | undefined | void>();
@@ -283,8 +299,8 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 	deleteAFileByClick(element: Dependency) {
 		const fileOrFolderPath = path.join(element.parentFolder, element.label);
 		if (element.isFolder) {
-			// fs.rmdirSync(element.parentFolder);
-			// this.refresh();
+			deleteFolderRecursive(element.parentFolder);
+			this.refresh();
 
 			// vscode.window.showQuickPick(['Yes', 'No'], {
 			// 	placeHolder: 'Are you sure you want to delete this folder?',

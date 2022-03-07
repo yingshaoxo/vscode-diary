@@ -3,7 +3,7 @@
 	"displayName": "VSCode Diary",
 	"description": "Help you to write your diary with VSCode",
 	"icon": "resources/icon.png",
-	"version": "0.0.3",
+	"version": "0.0.4",
 	"publisher": "yingshaoxo",
 	"author": {
 		"name": "yingshaoxo",
@@ -31,7 +31,7 @@
 				{
 					"id": "vscode-diary",
 					"title": "VSCode Diary",
-					"icon": "media/dep.svg"
+					"icon": "resources/dark/note.svg"
 				}
 			]
 		},
@@ -40,7 +40,7 @@
 				{
 					"id": "vscode-diary",
 					"name": "",
-					"icon": "media/dep.svg",
+					"icon": "resources/dark/note.svg",
 					"contextualTitle": "VSCode Diary"
 				}
 			],
@@ -66,10 +66,7 @@
 			{
 				"command": "vscode-diary.takeNotesEntry",
 				"title": "Take notes",
-				"icon": {
-					"light": "resources/light/note.svg",
-					"dark": "resources/dark/note.svg"
-				}
+				"icon": "resources/dark/note.svg"
 			},
 			{
 				"command": "vscode-diary.deleteEntry",
@@ -99,8 +96,7 @@
 				},
 				{
 					"command": "vscode-diary.takeNotesEntry",
-					"when": "view == vscode-diary",
-					"group": "navigation"
+					"when": "view == vscode-diary"
 				}
 			],
 			"view/item/context": [
