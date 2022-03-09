@@ -239,7 +239,8 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 				if (!fileName.endsWith('.md')) {
 					fileName = fileName + '.md';
 				}
-				createAFile(element.parentFolder, fileName, '');
+				const pureFileName = fileName.slice(0, fileName.length - 3);
+				createAFile(element.parentFolder, fileName, `# ${String(pureFileName)}\n\n`);
 				this.refresh();
 				this.openAfile(path.join(element.parentFolder, fileName));
 			}
