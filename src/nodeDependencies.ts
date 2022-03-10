@@ -364,6 +364,13 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 				return checkIfStringIsNumber(fileOrFolder) === true || isMarkDownFile(fileOrFolder) === true;
 			});
 
+			fileAndFolders.sort((a, b) => {
+				return a.localeCompare(b, undefined, {
+					numeric: true,
+					sensitivity: 'base'
+				});
+			});
+
 			const treeItems: Dependency[] = fileAndFolders.map(label => {
 				const absolutePath = path.join(parentFolderPath, label);
 				if (checkIfPathIsFile(absolutePath)) {
