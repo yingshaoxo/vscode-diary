@@ -220,13 +220,26 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 			createANewFolder(monthFolderPath, String(today.day));
 
 			const dayFolderPath = path.join(monthFolderPath, String(today.day));
-			createAFile(dayFolderPath, 'README.md', `# ${String(today.year)}.${String(today.month)}.${String(today.day)}\n\n`);
 
-			// show file
-			vscode.commands.executeCommand('vscode.open', vscode.Uri.file(path.join(dayFolderPath, 'README.md')));
+			vscode.window.showInputBox({
+				placeHolder: 'Note Name',
+				ignoreFocusOut: true,
+			}).then(fileName => {
+				if (fileName) {
+					if (!fileName.endsWith('.md')) {
+						fileName = fileName + '.md';
+					}
+					const pureFileName = fileName.slice(0, fileName.length - 3);
 
-			// refresh
-			this.refresh();
+					createAFile(dayFolderPath, fileName, `# ${String(pureFileName)}\n\n`);
+
+					// show file
+					vscode.commands.executeCommand('vscode.open', vscode.Uri.file(path.join(dayFolderPath, fileName)));
+
+					// refresh
+					this.refresh();
+				}
+			});
 		}
 	}
 
