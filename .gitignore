@@ -2,3 +2,7 @@ out
 node_modules
 yarn.lock
 *.vsix
+
+.pytest_cache
+.ipynb_checkpoints
+coverage

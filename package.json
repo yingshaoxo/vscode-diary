@@ -125,7 +125,8 @@
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
-		"lint": "eslint . --ext .ts,.tsx"
+		"lint": "eslint . --ext .ts,.tsx",
+		"test": "vitest"
 	},
 	"devDependencies": {
 		"@types/mkdirp": "^0.5.2",
@@ -135,11 +136,14 @@
 		"@typescript-eslint/eslint-plugin": "^4.16.0",
 		"@typescript-eslint/parser": "^4.16.0",
 		"eslint": "^7.21.0",
-		"typescript": "^4.5.5"
+		"typescript": "^4.5.5",
+		"vitest": "^0.22.1"
 	},
 	"dependencies": {
+		"ignore": "^5.2.1",
 		"minimist": "^0.2.1",
 		"mkdirp": "^0.5.1",
-		"rimraf": "^2.6.2"
+		"rimraf": "^2.6.2",
+		"vite": "^4.0.1"
 	}
 }

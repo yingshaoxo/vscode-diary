@@ -29,6 +29,6 @@
             "outFiles": [
                 "${workspaceRoot}/out/src"
             ]
-        }
+        },
     ]
 }

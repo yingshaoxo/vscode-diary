@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
 
-const getTodayDateObject = () => {
+const get_today_date_object = () => {
 	const today = new Date();
 	return {
 		year: today.getFullYear(),
@@ -11,7 +11,7 @@ const getTodayDateObject = () => {
 	};
 };
 
-const getAllFoldersInPath = (rootPath: string) => {
+const get_all_folders_under_a_path = (rootPath: string) => {
 	const folders = [];
 	if (rootPath) {
 		const folderNames = fs.readdirSync(rootPath);
@@ -25,7 +25,7 @@ const getAllFoldersInPath = (rootPath: string) => {
 	return folders;
 };
 
-const getAllFilesInPath = (rootPath: string) => {
+const get_all_files_under_a_path = (rootPath: string) => {
 	const files = [];
 	if (rootPath) {
 		const fileNames = fs.readdirSync(rootPath);
@@ -39,7 +39,7 @@ const getAllFilesInPath = (rootPath: string) => {
 	return files;
 };
 
-const getFileAndFoldersUnderAPath = (rootPath: string) => {
+const get_files_and_folders_under_a_path = (rootPath: string) => {
 	const filesAndFolders = [];
 	if (rootPath) {
 		const fileNames = fs.readdirSync(rootPath);
@@ -50,7 +50,7 @@ const getFileAndFoldersUnderAPath = (rootPath: string) => {
 	return filesAndFolders;
 };
 
-const getPathSeperator = () => {
+const get_path_seperator = () => {
 	if (process.platform === 'win32') {
 		return '\\';
 	} else {
@@ -58,19 +58,19 @@ const getPathSeperator = () => {
 	}
 };
 
-const getParentFolder = (path: string) => {
-	const pathSeperator = getPathSeperator();
+const get_parent_folder = (path: string) => {
+	const pathSeperator = get_path_seperator();
 	const pathArray = path.split(pathSeperator);
 	pathArray.pop();
 	return pathArray.join(pathSeperator);
 };
 
-const getLastPartOfAPath = (path: string) => {
-	const parts = path.split(getPathSeperator());
+const get_last_part_of_a_path = (path: string) => {
+	const parts = path.split(get_path_seperator());
 	return parts[parts.length - 1];
 };
 
-const createANewFolder = (rootPath: string, folderName: string) => {
+const create_a_new_folder = (rootPath: string, folderName: string) => {
 	if (rootPath) {
 		const folderPath = path.join(rootPath, folderName);
 		if (!fs.existsSync(folderPath)) {
@@ -79,7 +79,7 @@ const createANewFolder = (rootPath: string, folderName: string) => {
 	}
 };
 
-const createAFile = (rootPath: string, fileName: string, content: string) => {
+const create_a_file = (rootPath: string, fileName: string, content: string) => {
 	if (rootPath) {
 		const filePath = path.join(rootPath, fileName);
 		if (!fs.existsSync(filePath)) {
@@ -88,29 +88,29 @@ const createAFile = (rootPath: string, fileName: string, content: string) => {
 	}
 };
 
-const checkIfStringIsNumber = (str: string) => {
+const check_if_string_is_number = (str: string) => {
 	return /^-?[0-9]+(?:\.[0-9]+)?$/.test(str);
 };
 
-const isMarkDownFile = (fileName: string) => {
+const is_markdown_file = (fileName: string) => {
 	return /\.md$/.test(fileName);
 };
 
-const checkIfPathIsFile = (path: string) => {
+const check_if_it_is_a_file = (path: string) => {
 	if (fs.statSync(path).isFile()) {
 		return true;
 	}
 	return false;
 };
 
-const deleteFolderRecursive = function (path) {
+const delete_a_folder_and_its_files_recursively = function (path) {
 	let files = [];
 	if (fs.existsSync(path)) {
 		files = fs.readdirSync(path);
 		files.forEach(function (file, index) {
-			const curPath = path + getPathSeperator() + file;
+			const curPath = path + get_path_seperator() + file;
 			if (fs.lstatSync(curPath).isDirectory()) { // recurse
-				deleteFolderRecursive(curPath);
+				delete_a_folder_and_its_files_recursively(curPath);
 			} else { // delete file
 				fs.unlinkSync(curPath);
 			}
@@ -127,8 +127,8 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 	constructor(private workspaceRoot: string | undefined) {
 	}
 
-	openAfile(filePath: string) {
-		if (checkIfPathIsFile(filePath)) {
+	open_a_file(filePath: string) {
+		if (check_if_it_is_a_file(filePath)) {
 			vscode.window.showTextDocument(vscode.Uri.file(filePath));
 		}
 	}
@@ -137,12 +137,12 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 		this._onDidChangeTreeData.fire();
 	}
 
-	createANewFileForTodaysDiary(): void {
+	create_a_new_file_for_todays_diary(): void {
 		if (this.workspaceRoot) {
 			// create year folder
-			const today = getTodayDateObject();
+			const today = get_today_date_object();
 
-			const yearFolders = getAllFoldersInPath(this.workspaceRoot);
+			const yearFolders = get_all_folders_under_a_path(this.workspaceRoot);
 			let found = false;
 			for (let i = 0; i < yearFolders.length; i++) {
 				const folder = yearFolders[i];
@@ -151,12 +151,12 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 				}
 			}
 			if (found === false) {
-				createANewFolder(this.workspaceRoot, String(today.year));
+				create_a_new_folder(this.workspaceRoot, String(today.year));
 			}
 
 			// create month folder
 			const yearFolderPath = path.join(this.workspaceRoot, String(today.year));
-			const monthFolders = getAllFoldersInPath(yearFolderPath);
+			const monthFolders = get_all_folders_under_a_path(yearFolderPath);
 			found = false;
 			for (let i = 0; i < monthFolders.length; i++) {
 				const folder = monthFolders[i];
@@ -165,13 +165,13 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 				}
 			}
 			if (found === false) {
-				createANewFolder(yearFolderPath, String(today.month));
+				create_a_new_folder(yearFolderPath, String(today.month));
 			}
 
 			// create day file
 			const monthFolderPath = path.join(yearFolderPath, String(today.month));
 			const dayFilePath = path.join(monthFolderPath, String(today.day) + '.md');
-			createAFile(monthFolderPath, String(today.day) + '.md', `# ${String(today.year)}.${String(today.month)}.${String(today.day)}\n\n`);
+			create_a_file(monthFolderPath, String(today.day) + '.md', `# ${String(today.year)}.${String(today.month)}.${String(today.day)}\n\n`);
 
 			// show file
 			vscode.commands.executeCommand('vscode.open', vscode.Uri.file(dayFilePath));
@@ -184,12 +184,12 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 		}
 	}
 
-	takeNotesEntry() {
+	take_notes_entry() {
 		if (this.workspaceRoot) {
 			// create year folder
-			const today = getTodayDateObject();
+			const today = get_today_date_object();
 
-			const yearFolders = getAllFoldersInPath(this.workspaceRoot);
+			const yearFolders = get_all_folders_under_a_path(this.workspaceRoot);
 			let found = false;
 			for (let i = 0; i < yearFolders.length; i++) {
 				const folder = yearFolders[i];
@@ -198,12 +198,12 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 				}
 			}
 			if (found === false) {
-				createANewFolder(this.workspaceRoot, String(today.year));
+				create_a_new_folder(this.workspaceRoot, String(today.year));
 			}
 
 			// create month folder
 			const yearFolderPath = path.join(this.workspaceRoot, String(today.year));
-			const monthFolders = getAllFoldersInPath(yearFolderPath);
+			const monthFolders = get_all_folders_under_a_path(yearFolderPath);
 			found = false;
 			for (let i = 0; i < monthFolders.length; i++) {
 				const folder = monthFolders[i];
@@ -212,12 +212,12 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 				}
 			}
 			if (found === false) {
-				createANewFolder(yearFolderPath, String(today.month));
+				create_a_new_folder(yearFolderPath, String(today.month));
 			}
 
 			// create day file
 			const monthFolderPath = path.join(yearFolderPath, String(today.month));
-			createANewFolder(monthFolderPath, String(today.day));
+			create_a_new_folder(monthFolderPath, String(today.day));
 
 			const dayFolderPath = path.join(monthFolderPath, String(today.day));
 
@@ -231,7 +231,7 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 					}
 					const pureFileName = fileName.slice(0, fileName.length - 3);
 
-					createAFile(dayFolderPath, fileName, `# ${String(pureFileName)}\n\n`);
+					create_a_file(dayFolderPath, fileName, `# ${String(pureFileName)}\n\n`);
 
 					// show file
 					vscode.commands.executeCommand('vscode.open', vscode.Uri.file(path.join(dayFolderPath, fileName)));
@@ -243,7 +243,7 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 		}
 	}
 
-	createAFileByUserInput(element: Dependency) {
+	create_a_file_by_taking_userinput_filename(element: Dependency) {
 		vscode.window.showInputBox({
 			placeHolder: 'Enter file name',
 			ignoreFocusOut: true,
@@ -253,9 +253,9 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 					fileName = fileName + '.md';
 				}
 				const pureFileName = fileName.slice(0, fileName.length - 3);
-				createAFile(element.parentFolder, fileName, `# ${String(pureFileName)}\n\n`);
+				create_a_file(element.parentFolder, fileName, `# ${String(pureFileName)}\n\n`);
 				this.refresh();
-				this.openAfile(path.join(element.parentFolder, fileName));
+				this.open_a_file(path.join(element.parentFolder, fileName));
 			}
 		});
 	}
@@ -268,11 +268,11 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 		}).then(newName => {
 			if (newName) {
 				if (element.isFolder) {
-					if (!checkIfStringIsNumber(newName)) {
+					if (!check_if_string_is_number(newName)) {
 						vscode.window.showInformationMessage(`You can only rename folder to a number.`);
 						return;
 					} else {
-						const realParentFolder = getParentFolder(element.parentFolder);
+						const realParentFolder = get_parent_folder(element.parentFolder);
 						const oldFolderPath = path.join(realParentFolder, element.label);
 						const newFolderPath = path.join(realParentFolder, newName);
 						fs.renameSync(oldFolderPath, newFolderPath);
@@ -287,17 +287,17 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 				const fileOrFolderPath = path.join(element.parentFolder, element.label);
 
 				const oldPath = fileOrFolderPath;
-				const newPath = element.parentFolder + getPathSeperator() + newName;
+				const newPath = element.parentFolder + get_path_seperator() + newName;
 
 				fs.renameSync(oldPath, newPath);
 				this.refresh();
-				this.openAfile(newPath);
+				this.open_a_file(newPath);
 			}
 		});
 	}
 
 	convertFileToFolder(element: Dependency) {
-		if (!checkIfStringIsNumber(element.label)) {
+		if (!check_if_string_is_number(element.label)) {
 			vscode.window.showInformationMessage(`${element.label} is not a number`);
 			return;
 		}
@@ -305,26 +305,16 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 		if (!element.isFolder) {
 			const fileOrFolderPath = path.join(element.parentFolder, element.label);
 			fs.unlinkSync(fileOrFolderPath);
-			createANewFolder(element.parentFolder, element.label);
+			create_a_new_folder(element.parentFolder, element.label);
 			this.refresh();
 		}
 	}
 
-	deleteAFileByClick(element: Dependency) {
+	delete_a_file_when_user_click_it(element: Dependency) {
 		const fileOrFolderPath = path.join(element.parentFolder, element.label);
 		if (element.isFolder) {
-			deleteFolderRecursive(element.parentFolder);
+			delete_a_folder_and_its_files_recursively(element.parentFolder);
 			this.refresh();
-
-			// vscode.window.showQuickPick(['Yes', 'No'], {
-			// 	placeHolder: 'Are you sure you want to delete this folder?',
-			// 	ignoreFocusOut: true,
-			// }).then(answer => {
-			// 	if (answer === 'Yes') {
-			// 		fs.rmdirSync(fileOrFolderPath);
-			// 		this.refresh();
-			// 	}
-			// });
 		} else {
 			fs.unlinkSync(fileOrFolderPath);
 			this.refresh();
@@ -358,7 +348,7 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 			}
 			return Promise.resolve(this.getTreeItems(element.parentFolder));
 		} else {
-			if (this.pathExists(this.workspaceRoot)) {
+			if (this.is_path_exists(this.workspaceRoot)) {
 				return Promise.resolve(this.getTreeItems(this.workspaceRoot));
 			} else {
 				vscode.window.showInformationMessage('Workspace has markdown files');
@@ -372,9 +362,9 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 	 * Given the path to package.json, read all its dependencies and devDependencies.
 	 */
 	private getTreeItems(parentFolderPath: string): Dependency[] {
-		if (this.pathExists(parentFolderPath)) {
-			const fileAndFolders = getFileAndFoldersUnderAPath(parentFolderPath).filter(fileOrFolder => {
-				return checkIfStringIsNumber(fileOrFolder) === true || isMarkDownFile(fileOrFolder) === true;
+		if (this.is_path_exists(parentFolderPath)) {
+			const fileAndFolders = get_files_and_folders_under_a_path(parentFolderPath).filter(fileOrFolder => {
+				return check_if_string_is_number(fileOrFolder) === true || is_markdown_file(fileOrFolder) === true;
 			});
 
 			fileAndFolders.sort((a, b) => {
@@ -386,7 +376,7 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 
 			const treeItems: Dependency[] = fileAndFolders.map(label => {
 				const absolutePath = path.join(parentFolderPath, label);
-				if (checkIfPathIsFile(absolutePath)) {
+				if (check_if_it_is_a_file(absolutePath)) {
 					return new Dependency(false, parentFolderPath, label, vscode.TreeItemCollapsibleState.None, {
 						command: 'vscode.open',
 						title: '',
@@ -403,7 +393,7 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 		}
 	}
 
-	private pathExists(p: string): boolean {
+	private is_path_exists(p: string): boolean {
 		try {
 			fs.accessSync(p);
 		} catch (err) {
