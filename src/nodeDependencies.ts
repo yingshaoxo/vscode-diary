@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as tools from './tools';
 
 const get_today_date_object = () => {
 	const today = new Date();
@@ -80,7 +81,7 @@ const create_a_new_folder = (rootPath: string, folderName: string) => {
 };
 
 const create_a_file = (rootPath: string, fileName: string, content: string) => {
-	if (rootPath) {
+	if ((rootPath) && (fileName)) {
 		const filePath = path.join(rootPath, fileName);
 		if (!fs.existsSync(filePath)) {
 			fs.writeFileSync(filePath, content);
@@ -124,7 +125,13 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 	private _onDidChangeTreeData: vscode.EventEmitter<Dependency | undefined | void> = new vscode.EventEmitter<Dependency | undefined | void>();
 	readonly onDidChangeTreeData: vscode.Event<Dependency | undefined | void> = this._onDidChangeTreeData.event;
 
+	public root_path: string
+
 	constructor(private workspaceRoot: string | undefined) {
+	}
+
+	generate_summary_file() {
+		tools.generate_summary_readme_file(this.root_path, "SUMMARY.md")
 	}
 
 	open_a_file(filePath: string) {
@@ -135,6 +142,7 @@ export class DepNodeProvider implements vscode.TreeDataProvider<Dependency> {
 
 	refresh(): void {
 		this._onDidChangeTreeData.fire();
+		this.generate_summary_file()
 	}
 
 	create_a_new_file_for_todays_diary(): void {

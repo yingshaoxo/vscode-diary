@@ -4,10 +4,16 @@ import * as path from 'path';
 import ignore from 'ignore'
 
 
-export const print = (anything: any) => {
-	console.log(anything)
+export const print = (...args) => {
+	console.log(...args)
 }
 
+export const create_a_text_file = (rootPath: string, fileName: string, content: string) => {
+	if (fileName) {
+		const filePath = path.join(rootPath, fileName);
+		fs.writeFileSync(filePath, content);
+	}
+};
 
 export function is_path_exists(p: string): boolean {
 	try {
@@ -30,6 +36,21 @@ export const get_files_and_folders_under_a_path = (rootPath: string) => {
 	return filesAndFolders;
 };
 
+
+export const is_it_a_file = (path: string) => {
+	if (fs.statSync(path).isFile()) {
+		return true;
+	}
+	return false;
+};
+
+
+export const is_it_a_directory = (path: string) => {
+	if (fs.statSync(path).isDirectory()) {
+		return true;
+	}
+	return false;
+};
 
 export const get_path_seperator = () => {
 	if (process.platform === 'win32') {
@@ -62,7 +83,6 @@ export function path_join(path1: string, path2: string) {
 export const read_gitignore_file_and_convert_it_to_rule_list = () => {
 	let current_path = process.cwd();
 	let git_ignore_file_path = "./.gitignore";
-	// git_ignore_file_path = path_join(current_path, git_ignore_file_path)
 
 	if (is_path_exists(git_ignore_file_path)) {
 		let text = fs.readFileSync(git_ignore_file_path).toString().trim();
@@ -100,7 +120,7 @@ export class _FileInfoNode {
 	path: string
     is_folder: boolean
     is_file: boolean
-    folder: string
+    parent_folder: string
     name: string
     level: number
     children: _FileInfoNode[] | null = null
@@ -109,7 +129,7 @@ export class _FileInfoNode {
 			path: string, 
 			is_folder: boolean, 
 			is_file: boolean, 
-			folder: string,
+			parent_folder: string,
 			name: string,
 			level: number,
 			children: _FileInfoNode[] | null
@@ -124,98 +144,155 @@ export class _FileInfoNode {
 	}
 }
 
-// export function get_folder_and_files_tree(folder: string): _FileInfoNode {
-// 	let root = new _FileInfoNode({
-// 		path: folder,
-// 		is_folder: true,
-// 		is_file: false,
-// 		folder: get_directory_name(folder),
-// 		name: get_file_name(folder),
-// 		level: 0,
-// 		children: null
-// 	})
+function get_number_from_string(text: string) {
+    const num = text.toString().replace(/[^0-9]/g, ''); 
+	let result = 0.0
+	try {
+		result = parseFloat(num)
+	} catch {
+		result = 0.0
+	}
+    return result
+}
 
-// 	return root
-// }
+export function get_folder_and_files_tree(
+	folder: string,
+	reverse: boolean = false,
+	type_limiter: string[]  = [],
+	gitignore_rules: string[] = [], // it will use cwd folder's .gitignore file + your rules
+	): _FileInfoNode {
+	let root = new _FileInfoNode({
+		path: folder,
+		is_folder: true,
+		is_file: false,
+		parent_folder: get_directory_name(folder),
+		name: get_file_name(folder),
+		level: 0,
+		children: null
+	})
 
-/*
-def get_folder_and_files_tree(
-	self, 
-	folder: str, 
-	reverse: bool = False,
-	type_limiter: List[str] | None = None,
-	gitignore_text: str|None = None,
-) -> _FileInfo:
-	"""
-	Get files recursively under a folder.
+	const travel = (node: _FileInfoNode) => {
+		if (node.is_file) {
+			node.children = null
+			return
+		}
 
-	Parameters
-	----------
-	folder: string
-	type_limiter: List[str]
-		a list used to do a type filter, like [".mp3", ".epub"]
-	gitignore_text: str
-		similar to git's .gitignore file, if any file matchs any rule, it won't be inside of the 'return file list'
-	"""
-	root = _FileInfo(
-		path=folder,
-		is_folder=True,
-		is_file=False,
-		folder=self.get_directory_name(folder),
-		name=self.get_file_name(folder),
-		level=0,
-		children=None
-	)
+		if (node.is_folder) {
+			let files_and_folders = get_files_and_folders_under_a_path(node.path)
+			let children: _FileInfoNode[] = []
+			for (let index = 0; index < files_and_folders.length; index++) {
+				let a_path = path_join(node.path, files_and_folders[index]) 
+				let is_folder = is_it_a_directory(a_path)
 
-	ignore_pattern_list = []
-	if gitignore_text != None:
-		ignore_pattern_list = self._parse_gitignore_text_to_list(gitignore_text=gitignore_text)
+				let should_it_get_filter_out = true
+				if (is_folder == false) {
+					if (type_limiter.length != 0) {
+						let suffix = "." + a_path.split(".").pop()
+						if (type_limiter.includes(suffix)) {
+							should_it_get_filter_out = false
+						}
+					} else {
+						should_it_get_filter_out = false
+					}
+				} else {
+					should_it_get_filter_out = false
+				}
 
-	def dive(node: _FileInfo):
-		folder = node.path
+				if (should_it_get_filter_out == true) {
+					continue
+				}
 
-		if not os.path.isdir(folder):
-			return None
+				let new_node = new _FileInfoNode({
+					path: a_path,
+					is_folder: is_folder,
+					is_file: !is_folder,
+					parent_folder: get_directory_name(a_path),
+					name: get_file_name(a_path),
+					level: node.level + 1,
+					children: null
+				})
+				travel(new_node)
+				children.push(new_node)
+			}
 
-		items = os.listdir(folder)
-		if len(items) == 0:
-			return []
-		
-		files_and_folders: list[_FileInfo] = []
-		for filename in items:
-			file_path = os.path.join(folder, filename)
-			if (os.path.isdir(file_path)) or (type_limiter == None) or (Path(file_path).suffix in type_limiter):
-				# save
-				#absolute_file_path = os.path.abspath(file_path)
+			let new_files = get_files_after_gitignore_filtering(children.map(value => value.name), gitignore_rules)
+			children = children.filter((a_node) => {
+				return new_files.includes(a_node.name)
+			})
 
-				if gitignore_text != None:
-					if self._file_match_the_gitignore_rule_list(
-						start_folder=node.path, 
-						file_path=file_path,
-						ignore_pattern_list=ignore_pattern_list,
-					):
-						continue
-				
-				new_node = _FileInfo(
-					path=file_path,
-					is_folder=os.path.isdir(file_path),
-					is_file=os.path.isfile(file_path),
-					folder=self.get_directory_name(file_path),
-					name=self.get_file_name(file_path),
-					level=node.level + 1,
-					children=None
-				)
-				dive(node=new_node)
-				files_and_folders.append(
-					new_node
-				)
-			else:
-				# drop
-				continue
-		files_and_folders.sort(key=lambda node_: self._super_sort_key_function(node_.name), reverse=reverse)
-		node.children = files_and_folders
-	
-	dive(root)
-	
+			children.sort((a: _FileInfoNode, b: _FileInfoNode) => {
+				const aa = get_number_from_string(a.name)
+				const bb = get_number_from_string(b.name)
+				if (reverse == false) {
+					return aa-bb
+				} else {
+					return bb-aa
+				}
+			})
+			node.children = children
+		}
+	}
+
+	travel(root)
+
 	return root
-	*/
+}
+
+
+export function generate_summary_readme_file(folder_path: string, generated_file_name: string = "SUMMARY.md") {
+    let node = get_folder_and_files_tree(
+        folder_path,
+        false,
+        [".md"],
+        [".git"]
+    )
+
+    let text = `
+# Table of contents
+	`.trim()
+	text += "\n\n"
+
+    const travel = (node: _FileInfoNode) => {
+		let relative_path = node.path.slice(folder_path.length+1, node.path.length)
+        if (node.is_file) {
+            if (![0, 1, 2].includes(node.level)) {
+                if (node.level == 3) {
+                    // day note
+					let splits = node.path.split(get_path_seperator())
+					splits.reverse()
+                    let date_string = splits[2] + "/" + get_file_name(node.parent_folder).padStart(2, '0') + "/" + node.name.slice(0, node.name.length - ".md".length).padStart(2, '0')
+                    text += "* ".repeat(node.level - 1) + `[${date_string}](${relative_path})` + "\n"
+                } else {
+                    // other notes
+					text += "* ".repeat(node.level - 1) + `[${node.name.slice(0, node.name.length - '.md'.length)}](${relative_path})` + "\n"
+                }
+            }
+        } else {
+			if (node.level != 0) {
+				if (node.level == 1) {
+					// year
+					text += "* ".repeat(node.level - 1) + `[${node.name}](${relative_path})` + "\n"
+				}
+				if (node.level == 2) {
+					// month
+					text += "* ".repeat(node.level - 1) + `[${node.name}](${relative_path})` + "\n"
+				}
+				if (node.level == 3) {
+					// day
+					let splits = node.path.split(get_path_seperator())
+					splits.reverse()
+                    let date_string = splits[2] + "/" + get_file_name(node.parent_folder).padStart(2, '0') + "/" + node.name.slice(0, node.name.length - ".md".length).padStart(2, '0')
+                    text += "* ".repeat(node.level - 1) + `${date_string}` + "\n"
+				}
+			}
+
+            node.children?.forEach((node) => {
+                travel(node)
+            })
+        }
+    }
+
+	travel(node)
+
+	create_a_text_file(folder_path, "./" + generated_file_name, text)
+}

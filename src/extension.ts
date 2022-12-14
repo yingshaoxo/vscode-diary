@@ -4,14 +4,13 @@ import * as vscode from 'vscode';
 
 import { DepNodeProvider, Dependency } from './nodeDependencies';
 
-import * as tools from './tools';
-
 export function activate(context: vscode.ExtensionContext) {
 	const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
 		? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
 
 	// Samples of `window.registerTreeDataProvider`
 	const nodeDependenciesProvider = new DepNodeProvider(rootPath);
+
 	vscode.window.registerTreeDataProvider('vscode-diary', nodeDependenciesProvider);
 	vscode.commands.registerCommand('vscode-diary.refreshEntry', () => nodeDependenciesProvider.refresh());
 	vscode.commands.registerCommand('vscode-diary.addEntry', () => nodeDependenciesProvider.create_a_new_file_for_todays_diary());
@@ -21,7 +20,5 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('vscode-diary.renameEntry', (node: Dependency) => nodeDependenciesProvider.rename(node));
 	vscode.commands.registerCommand('vscode-diary.deleteEntry', (node: Dependency) => nodeDependenciesProvider.delete_a_file_when_user_click_it(node));
 
-	// Test View
-	const files_and_folders = tools.get_files_and_folders_under_a_path(rootPath);
-	console.log(files_and_folders);
+	nodeDependenciesProvider.root_path = rootPath
 }
